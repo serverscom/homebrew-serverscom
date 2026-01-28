@@ -14,7 +14,6 @@ class AbstractSrvctl < Formula
         url "https://github.com/serverscom/srvctl/releases/download/v#{version}/srvctl_#{version}_darwin_arm64.zip"
         sha256 checksums.fetch('darwin_arm64')
       end
-
       on_intel do
         url "https://github.com/serverscom/srvctl/releases/download/v#{version}/srvctl_#{version}_darwin_amd64.zip"
         sha256 checksums.fetch('darwin_amd64')
@@ -26,7 +25,6 @@ class AbstractSrvctl < Formula
         url "https://github.com/serverscom/srvctl/releases/download/v#{version}/srvctl_#{version}_linux_arm64.zip"
         sha256 checksums.fetch('linux_arm64')
       end
-
       on_intel do
         url "https://github.com/serverscom/srvctl/releases/download/v#{version}/srvctl_#{version}_linux_amd64.zip"
         sha256 checksums.fetch('linux_amd64')
@@ -36,6 +34,12 @@ class AbstractSrvctl < Formula
 
   def install
     bin.install 'srvctl'
+
+    # Скачиваем и устанавливаем man-страницы
+    docs_url = "https://github.com/serverscom/srvctl/releases/download/v#{version}/srvctl-docs-generated_#{version}.zip"
+    system 'curl', '-sL', docs_url, '-o', 'docs.zip'
+    system 'unzip', '-q', 'docs.zip'
+    man1.install Dir['docs/generated/man/*.1']
   end
 
   def self.checksums
@@ -44,20 +48,16 @@ class AbstractSrvctl < Formula
 
   def self.fetch_checksums
     require 'net/http'
-
     checksums_url = "https://github.com/serverscom/srvctl/releases/download/v#{version}/srvctl_#{version}_SHA256SUMS"
-
     fetch(checksums_url).split("\n").each_with_object({}) do |line, h|
       sha, file = line.split(' ')
       platform = file.gsub("srvctl_#{version}_", '').split('.').first
-
       h[platform] = sha
     end
   end
 
   def self.fetch(url, redirects = 5)
     require 'net/http'
-
     raise 'Too many redirects' if redirects.zero?
 
     uri = URI.parse(url)
