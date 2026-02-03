@@ -35,7 +35,7 @@ class AbstractSrvctl < Formula
   def install
     bin.install 'srvctl'
 
-    # Скачиваем и устанавливаем man-страницы
+    # Downloading and installing man pages
     docs_url = "https://github.com/serverscom/srvctl/releases/download/v#{version}/srvctl-docs-generated_#{version}.zip"
     system 'curl', '-sL', docs_url, '-o', 'docs.zip'
     system 'unzip', '-q', 'docs.zip'
